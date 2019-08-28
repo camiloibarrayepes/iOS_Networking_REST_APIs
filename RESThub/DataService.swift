@@ -20,10 +20,24 @@ class DataService {
         var componentURL = URLComponents()
         componentURL.scheme = "https"
         componentURL.host = "api.github.com"
-        componentURL.path = "/somePath"
+        componentURL.path = "/gists/public"
         
-        //print(baseURL)
-        //print(compusedURL?.absoluteString ?? "Relative URL failed...")
-        print(componentURL.url! )
+        guard let validURL = componentURL.url else {
+            print("URL Creation failed")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: validURL) { (data, response, error) in
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("API status: \(httpResponse.statusCode)")
+            }
+            
+            guard let validData = data, error == nil else {
+                print("API error :\(error!.localizedDescription)")
+                return
+            }
+            
+            }.resume()
     }
 }
