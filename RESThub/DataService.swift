@@ -13,7 +13,8 @@ class DataService {
     static let shared = DataService()
     fileprivate let baseURLString = "https://api.github.com"
     
-    func fetchGists() {
+    //@escaping to allowed to execute after the method returns
+    func fetchGists(completion: @escaping (Result<Any, Error>) -> Void) {
         //var baseURL = URL(string: baseURLString)
         //baseURL?.appendPathComponent("/somePath")
         //let compusedURL = URL(string: "/somePath", relativeTo: baseURL)
@@ -34,8 +35,18 @@ class DataService {
             }
             
             guard let validData = data, error == nil else {
-                print("API error :\(error!.localizedDescription)")
+                completion(.failure(error!))
+                //print("API error :\(error!.localizedDescription)")
                 return
+            }
+            
+            do {
+                let json = try JSONSerialization.jsonObject(with: validData, options: [])
+                completion(.success(json))
+                //print(json)
+            } catch let serializationError {
+                completion(.failure(serializationError))
+                //print(serializationError.localizedDescription)
             }
             
             }.resume()

@@ -20,7 +20,14 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // TODO: GET a list of gists
-        DataService.shared.fetchGists()
+        DataService.shared.fetchGists { (result) in
+            switch result {
+                case .success(let json):
+                    print(json)
+                case .failure(let error):
+                    print(error)
+            }
+        }
         //(1*) shared.fetchGists()
     }
 
