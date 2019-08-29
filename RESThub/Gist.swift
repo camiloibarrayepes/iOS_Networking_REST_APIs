@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Gist: Codable {
+struct Gist: Encodable {
     var id: String
     var isPublic: Bool
     var description: String
@@ -16,6 +16,19 @@ struct Gist: Codable {
     enum CodingKeys: String, CodingKey {
         case id, description, isPublic = "public"
     }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(isPublic, forKey: .isPublic)
+        try container.encode(description, forKey: .description)
+        try container.encodeIfPresent(id, forKey: .id)
+        
+        
+    }
+}
+
+extension Gist: Decodable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

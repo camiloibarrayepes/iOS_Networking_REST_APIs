@@ -19,7 +19,17 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // TODO: GET a list of gists
+        
+        let testGist = Gist(id: "", isPublic: true, description: "hello")
+        
+        do{
+            let gistData = try JSONEncoder().encode(testGist)
+            let stringData = String(data: gistData, encoding: .utf8)
+            print(stringData)
+        }catch{
+            print("Encoding Failed")
+        }
+        
         //call the class 
         DataService.shared.fetchGists { (result) in
             switch result {
