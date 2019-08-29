@@ -15,38 +15,42 @@ class ViewController: UIViewController {
     
     // MARK: Variables
     
+    var feedGist: [Gist] = []
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
        
-        //call the class 
-        /*DataService.shared.fetchGists { (result) in
-            switch result {
-                case .success(let gists):
-                    for gist in gists {
-                        print("\(gist)\n")
-                }
-                case .failure(let error):
-                    print(error)
-            }
-        }*/
         
-        DataService.shared.starUnstarGist(id: "6392e751a30c9841c87f293886552562", star: false) { (success) in
-            if success {
-                print("Gist successfully Unstarred")
-            }else{
-                print("Gist Failed")
+        DataService.shared.fetchGists { (result) in
+            DispatchQueue.main.sync {
+                switch result {
+                    case .success(let gists):
+                        self.feedGist = gists
+                        self.feedTableView.reloadData()
+                        
+                        for gist in gists {
+                            print("\(gist)\n")
+                        }
+                    case .failure(let error):
+                        print(error)
+                }
             }
         }
+        
+        
     }
 
     @IBAction func createNewGist(_ sender: UIButton) {
         // TODO: POST a new gist
         DataService.shared.createNewGist { (result) in
-            switch result {
-                case .success(let json):
-                    print(json)
-                case .failure(let error):
-                    print(error)
+            DispatchQueue.main.async {
+                switch result {
+                    case .success(let json):
+                        self.showResultAlert(title: "Yes", message: "New Post Successfully created")
+                    case .failure(let error):
+                        self.showResultAlert(title: "Oops", message: "Something went wrong")
+                }
             }
         }
     }
@@ -65,26 +69,50 @@ class ViewController: UIViewController {
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1;
+        return self.feedGist.count;
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "feedCellID", for: indexPath)
-        
+        let currentGist = self.feedGist[indexPath.row]
+        cell.textLabel?.text = currentGist.description
+        cell.detailTextLabel?.text = currentGist.id
         return cell;
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
+        let currentGist = self.feedGist[indexPath.row]
+        
         let starAction = UIContextualAction(style: .normal, title: "Star") { (action, view, completion) in
             
-            // TODO: PUT a gist star
+            DataService.shared.starUnstarGist(id: "\(currentGist.id)", star: true) { (success) in
+                DispatchQueue.main.async {
+                    if success {
+                        self.showResultAlert(title: "Success", message: "Gist successfully starred")
+                        print("Gist successfully Unstarred")
+                    }else{
+                        self.showResultAlert(title: "Error", message: "something went wrong")
+                        print("Gist Failed")
+                    }
+                }
+            }
             completion(true)
         }
         
         let unstarAction = UIContextualAction(style: .normal, title: "Unstar") { (action, view, completion) in
             
-            // TODO: DELETE a gist star
+            DataService.shared.starUnstarGist(id: "\(currentGist.id)", star: false) { (success) in
+                DispatchQueue.main.async {
+                    if success {
+                        self.showResultAlert(title: "Success", message: "Gist successfully unstarred")
+                        print("Gist successfully Unstarred")
+                    }else{
+                        self.showResultAlert(title: "Error", message: "something went wrong")
+                        print("Gist Failed")
+                    }
+                }
+            }
             completion(true)
         }
         
