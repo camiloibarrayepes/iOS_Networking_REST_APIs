@@ -20,10 +20,13 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // TODO: GET a list of gists
+        //call the class 
         DataService.shared.fetchGists { (result) in
             switch result {
-                case .success(let json):
-                    print(json)
+                case .success(let gists):
+                    for gist in gists {
+                        print("\(gist)\n")
+                }
                 case .failure(let error):
                     print(error)
             }

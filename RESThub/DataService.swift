@@ -14,7 +14,7 @@ class DataService {
     fileprivate let baseURLString = "https://api.github.com"
     
     //@escaping to allowed to execute after the method returns
-    func fetchGists(completion: @escaping (Result<Any, Error>) -> Void) {
+    func fetchGists(completion: @escaping (Result<[Gist], Error>) -> Void) {
         //var baseURL = URL(string: baseURLString)
         //baseURL?.appendPathComponent("/somePath")
         //let compusedURL = URL(string: "/somePath", relativeTo: baseURL)
@@ -41,8 +41,10 @@ class DataService {
             }
             
             do {
-                let json = try JSONSerialization.jsonObject(with: validData, options: [])
-                completion(.success(json))
+                //let json = try JSONSerialization.jsonObject(with: validData, options: [])
+                
+                let gists = try JSONDecoder().decode([Gist].self, from: validData)
+                completion(.success(gists))
                 //print(json)
             } catch let serializationError {
                 completion(.failure(serializationError))
