@@ -64,6 +64,21 @@ class DataService {
         var postRequest = URLRequest(url: composedURL)
         postRequest.httpMethod = "POST"
         
+        let authString = "camiloibarrayepes:xxxxxx"
+        var authStringBase64 = ""
+        
+        if let authData = authString.data(using: .utf8) {
+            authStringBase64 = authData.base64EncodedString()
+        }
+        
+        postRequest.setValue("Basic \(authStringBase64)", forHTTPHeaderField: "Authorization")
+        
+        postRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        postRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        
+        
+        
         let newGist = Gist(id: "", isPublic: true, description: "A brand new gist", files: ["text_file.txt": File(content: "Hello World")])
         
         do{
