@@ -64,6 +64,35 @@ class DataService {
         var postRequest = URLRequest(url: composedURL)
         postRequest.httpMethod = "POST"
         
+        let newGist = Gist(id: "", isPublic: true, description: "A brand new gist", files: ["text_file.txt": File(content: "Hello World")])
+        
+        do{
+            let gistData = try JSONEncoder().encode(newGist)
+            postRequest.httpBody = gistData
+        } catch {
+            print("Gist encoding failed")
+        }
+        
+        URLSession.shared.dataTask(with: postRequest) { (data, response, error) in
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Status code: \(httpResponse.statusCode)")
+            }
+            
+            guard let validData = data, error == nil else {
+                completion(.failure(error!))
+                return
+            }
+            
+            do {
+                let json = try JSONSerialization.jsonObject(with: validData, options: [])
+                completion(.success(json))
+            } catch let serializationError {
+                completion(.failure(serializationError))
+            }
+            
+        }.resume()
+        
     }
     
     func createURLComponents(path: String) -> URLComponents {
